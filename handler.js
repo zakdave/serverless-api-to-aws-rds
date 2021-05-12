@@ -1,18 +1,18 @@
 'use strict';
-const db = require('../db_connect');
+const db = require('./db-connect');
 
 module.exports.myTestFunction = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
-  const functions = await db.query('SELECT * FROM Equipment_Info');
+  const equipmentInfoTable = await db.query('SELECT * FROM Equipment_Info');
   await db.end();
-  if (functions) {
+  if (equipmentInfoTable) {
       callback(null, {
           statusCode: 200,
           headers: {
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Credentials': true,
           },
-          body: JSON.stringify(functions),
+          body: JSON.stringify(equipmentInfoTable),
       })
   } else {
       callback('error', {
@@ -22,7 +22,7 @@ module.exports.myTestFunction = async (event, context, callback) => {
               'Access-Control-Allow-Credentials': true,
           },
           body: {
-              message: 'No functions found.'
+              message: 'No equipment info table found.'
           },
       })
   }

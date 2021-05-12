@@ -1,4 +1,5 @@
 'use strict';
+const db = require('../db_connect');
 
 module.exports.myTestFunction = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;

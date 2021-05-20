@@ -91,6 +91,12 @@
               "LogGroupName": "/aws/lambda/project-1-dev-myTestfunction"
             }
           },
+          "MyTestfunction2LogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/project-1-dev-myTestfunction2"
+            }
+          },
           "IamRoleLambdaExecution": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -205,6 +211,12 @@
                               "MyTestfunctionLogGroup",
                               "Arn"
                             ]
+                          },
+                          {
+                            "Fn::GetAtt": [
+                              "MyTestfunction2LogGroup",
+                              "Arn"
+                            ]
                           }
                         ]
                       }
@@ -221,7 +233,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/project-1/dev/1620847562150-2021-05-12T19:26:02.150Z/project-1.zip"
+                "S3Key": "serverless/project-1/dev/1621525551136-2021-05-20T15:45:51.136Z/project-1.zip"
               },
               "Handler": "s_myTestfunction.handler",
               "Runtime": "nodejs12.x",
@@ -239,14 +251,49 @@
               "MyTestfunctionLogGroup"
             ]
           },
-          "MyTestfunctionLambdaVersionuw0Dspk3kjE30eGAtCWaCYp3JybaXrFaLXSu8hJh7E4": {
+          "MyTestfunction2LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/project-1/dev/1621525551136-2021-05-20T15:45:51.136Z/project-1.zip"
+              },
+              "Handler": "s_myTestfunction2.handler",
+              "Runtime": "nodejs12.x",
+              "FunctionName": "project-1-dev-myTestfunction2",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "MyTestfunction2LogGroup"
+            ]
+          },
+          "MyTestfunctionLambdaVersionldlmHy5aHKkKfbnYcEKcSE7jtQSea3Hx7H2rrx8b8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "MyTestfunctionLambdaFunction"
               },
-              "CodeSha256": "UCbIdaAIjMzPgSQ3Capjc4dYR6AxivmD0KhqX/fl44k="
+              "CodeSha256": "ozi89tokKE+RHFC4l1L2qmInQZwAWaaNgPCtjSsF/Wk="
+            }
+          },
+          "MyTestfunction2LambdaVersionPClNUcFmNUshaNYXWkQAgqFWnYErrg4o79gyYlvyso": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "MyTestfunction2LambdaFunction"
+              },
+              "CodeSha256": "ozi89tokKE+RHFC4l1L2qmInQZwAWaaNgPCtjSsF/Wk="
             }
           },
           "ApiGatewayRestApi": {
@@ -271,6 +318,21 @@
                 ]
               },
               "PathPart": "path",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceTest": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "test",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -321,6 +383,51 @@
               }
             }
           },
+          "ApiGatewayMethodTestOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceTest"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayMethodPathGet": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -364,7 +471,50 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1620847554252": {
+          "ApiGatewayMethodTestGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceTest"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "MyTestfunction2LambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayDeployment1621525542526": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -374,7 +524,9 @@
             },
             "DependsOn": [
               "ApiGatewayMethodPathOptions",
-              "ApiGatewayMethodPathGet"
+              "ApiGatewayMethodTestOptions",
+              "ApiGatewayMethodPathGet",
+              "ApiGatewayMethodTestGet"
             ]
           },
           "MyTestfunctionLambdaPermissionApiGateway": {
@@ -383,6 +535,43 @@
               "FunctionName": {
                 "Fn::GetAtt": [
                   "MyTestfunctionLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "MyTestfunction2LambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "MyTestfunction2LambdaFunction",
                   "Arn"
                 ]
               },
@@ -523,7 +712,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/project-1/dev/1620847562150-2021-05-12T19:26:02.150Z/custom-resources.zip"
+                "S3Key": "serverless/project-1/dev/1621525551136-2021-05-20T15:45:51.136Z/custom-resources.zip"
               },
               "FunctionName": "project-1-dev-custom-resource-apigw-cw-role",
               "Handler": "apiGatewayCloudWatchRole/handler.handler",
@@ -548,6 +737,16 @@
               "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
               "LogGroupName": {
                 "Ref": "MyTestfunctionLogGroup"
+              }
+            }
+          },
+          "CloudWatchLogsSubscriptionFilterMyTestfunction2LogGroup": {
+            "Type": "AWS::Logs::SubscriptionFilter",
+            "Properties": {
+              "DestinationArn": "arn:aws:logs:us-east-1:802587217904:destination:171ca972-f8fe-4ed9-be7b-de674fa7b562#FNV7v5qvZ0L3h67CWp#project-1#dev",
+              "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
+              "LogGroupName": {
+                "Ref": "MyTestfunction2LogGroup"
               }
             }
           },
@@ -585,10 +784,19 @@
           "MyTestfunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MyTestfunctionLambdaVersionuw0Dspk3kjE30eGAtCWaCYp3JybaXrFaLXSu8hJh7E4"
+              "Ref": "MyTestfunctionLambdaVersionldlmHy5aHKkKfbnYcEKcSE7jtQSea3Hx7H2rrx8b8"
             },
             "Export": {
               "Name": "sls-project-1-dev-MyTestfunctionLambdaFunctionQualifiedArn"
+            }
+          },
+          "MyTestfunction2LambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "MyTestfunction2LambdaVersionPClNUcFmNUshaNYXWkQAgqFWnYErrg4o79gyYlvyso"
+            },
+            "Export": {
+              "Name": "sls-project-1-dev-MyTestfunction2LambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -749,7 +957,45 @@
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "MyTestfunctionLambdaVersionuw0Dspk3kjE30eGAtCWaCYp3JybaXrFaLXSu8hJh7E4"
+        "versionLogicalId": "MyTestfunctionLambdaVersionldlmHy5aHKkKfbnYcEKcSE7jtQSea3Hx7H2rrx8b8"
+      },
+      "myTestfunction2": {
+        "handler": "s_myTestfunction2.handler",
+        "events": [
+          {
+            "http": {
+              "path": "test",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "project-1-dev-myTestfunction2",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "MyTestfunction2LambdaVersionPClNUcFmNUshaNYXWkQAgqFWnYErrg4o79gyYlvyso"
       }
     },
     "configValidationMode": "warn",
@@ -767,7 +1013,6 @@
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
       },
-      "stage": "dev",
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
       },
@@ -782,7 +1027,7 @@
     "artifact": "C:\\Users\\Administrator\\desktop\\development\\projects\\aws-api-rds\\project-1\\.serverless\\project-1.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/project-1/dev/1620847562150-2021-05-12T19:26:02.150Z",
+    "artifactDirectoryName": "serverless/project-1/dev/1621525551136-2021-05-20T15:45:51.136Z",
     "artifact": "project-1.zip"
   }
 }

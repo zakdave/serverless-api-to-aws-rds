@@ -207,7 +207,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/project-1/dev/1620846905398-2021-05-12T19:15:05.398Z/project-1.zip"
+          "S3Key": "serverless/project-1/dev/1620847562150-2021-05-12T19:26:02.150Z/project-1.zip"
         },
         "Handler": "s_myTestfunction.handler",
         "Runtime": "nodejs12.x",
@@ -225,14 +225,14 @@
         "MyTestfunctionLogGroup"
       ]
     },
-    "MyTestfunctionLambdaVersionVUokFv6ujwjTobP3pe4FLnSHQDrNIa8lz9tulIdrX4": {
+    "MyTestfunctionLambdaVersionuw0Dspk3kjE30eGAtCWaCYp3JybaXrFaLXSu8hJh7E4": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "MyTestfunctionLambdaFunction"
         },
-        "CodeSha256": "mF9m0xfJZG3Osi9UG9J6HS47dk9V/+Q9EwBt+Igmmcc="
+        "CodeSha256": "UCbIdaAIjMzPgSQ3Capjc4dYR6AxivmD0KhqX/fl44k="
       }
     },
     "ApiGatewayRestApi": {
@@ -350,7 +350,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1620846896849": {
+    "ApiGatewayDeployment1620847554252": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -509,7 +509,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/project-1/dev/1620846905398-2021-05-12T19:15:05.398Z/custom-resources.zip"
+          "S3Key": "serverless/project-1/dev/1620847562150-2021-05-12T19:26:02.150Z/custom-resources.zip"
         },
         "FunctionName": "project-1-dev-custom-resource-apigw-cw-role",
         "Handler": "apiGatewayCloudWatchRole/handler.handler",
@@ -571,7 +571,7 @@
     "MyTestfunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "MyTestfunctionLambdaVersionVUokFv6ujwjTobP3pe4FLnSHQDrNIa8lz9tulIdrX4"
+        "Ref": "MyTestfunctionLambdaVersionuw0Dspk3kjE30eGAtCWaCYp3JybaXrFaLXSu8hJh7E4"
       },
       "Export": {
         "Name": "sls-project-1-dev-MyTestfunctionLambdaFunctionQualifiedArn"
